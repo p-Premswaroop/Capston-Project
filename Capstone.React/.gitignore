@@ -1,0 +1,158 @@
+# =========================
+# .NET / C#
+# =========================
+
+# Build output
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio cache
+.vs/
+.vscode/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.rsuser
+
+# Visual Studio Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Build logs
+*.log
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+*.nuget.props
+*.nuget.targets
+
+# NuGet Package Manager cache
+project.lock.json
+project.fragment.lock.json
+
+# ASP.NET Core
+wwwroot/dist/
+wwwroot/node_modules/
+
+# Entity Framework migrations temporary files
+*.dbmdl
+
+# SQL Server database files
+*.mdf
+*.ldf
+*.ndf
+
+# Local development configuration
+appsettings.Development.json
+appsettings.Local.json
+
+# User secrets
+secrets.json
+
+# Test results
+TestResults/
+*.trx
+
+# Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+# BenchmarkDotNet
+BenchmarkDotNet.Artifacts/
+
+# =========================
+# Node / React
+# =========================
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+build/
+
+# Local environment files
+*.local
+.env
+.env.*
+!.env.example
+
+# npm logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =========================
+# Logs
+# =========================
+
+logs/
+*.log
+
+# =========================
+# Operating System
+# =========================
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# =========================
+# Visual Studio
+# =========================
+
+*.ncb
+*.sdf
+*.opensdf
+*.opendb
+*.VC.db
+*.VC.VC.opendb
+
+# =========================
+# Miscellaneous
+# =========================
+
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper*
+*.DotSettings.user
+
+# Rider
+.idea/
+
+# =========================
+# Publish output
+# =========================
+
+publish/
+Publish/
+*.publishsettings
+
+# =========================
+# Azure
+# =========================
+
+*.publish.xml

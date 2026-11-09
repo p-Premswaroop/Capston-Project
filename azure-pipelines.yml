@@ -1,0 +1,164 @@
+trigger:
+  branches:
+    include:
+    - master
+pool:
+  name: PremPool
+variables:
+- name: buildConfiguration
+  value: Release
+stages:
+- stage: Build
+  displayName: ApplicationBuild
+  jobs:
+  - job: Build
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore'
+      inputs:
+        command: 'restore'
+        projects: '**/*.sln'
+
+    - task: VSBuild@1
+      displayName: 'Build Solution'
+      inputs:
+        solution: '**/*.sln'
+        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.ArtifactStagingDirectory)"'
+        configuration: 'Release'
+        clean: true
+        restoreNugetPackages: false
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Build Artifacts'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+- stage: Test
+  displayName: UnitTest
+  dependsOn:
+  - Build
+  condition: succeeded()
+  jobs:
+  - job: Test
+    steps:
+    - task: VisualStudioTestPlatformInstaller@1
+      displayName: 'Install VS Test Platform'
+      inputs:
+        packageFeedSelector: 'nugetOrg'
+        versionSelector: 'latestStable'
+
+    - task: VSTest@2
+      displayName: 'Run Unit Tests'
+      inputs:
+        testSelector: 'testAssemblies'
+        testAssemblyVer2: |
+          **\*test*.dll
+          !**\*TestAdapter.dll
+          !**\obj\**
+        searchFolder: '$(System.DefaultWorkingDirectory)'
+        vsTestVersion: 'toolsInstaller'
+# - stage: Test
+#   displayName: UnitTest
+#   jobs:
+#   - job: Test
+#     steps:
+#     - task: VSTest@2
+#       inputs:
+#         testSelector: testAssemblies
+#         testAssemblyVer2: >
+#           **\*test*.dll
+
+#           !**\*TestAdapter.dll
+
+#           !**\obj\**
+#         searchFolder: $(System.DefaultWorkingDirectory)
+#- stage: SonarQube
+#  displayName: StaticCodeAnalysis
+#  jobs:
+#  - job: SonarQube
+#    steps:
+#   - task: CmdLine@2
+#     inputs:
+#       script: echo "code analysis"
+
+- stage: deploy_dev
+  displayName: ApplicationDeplo
+  jobs:
+  - job: dev
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: current
+        downloadType: single
+        artifactName: drop
+        downloadPath: $(System.DefaultWorkingDirectory)
+    - task: AzureRmWebAppDeployment@4
+      inputs:
+        ConnectionType: AzureRM
+        azureSubscription: '$(connectedservicename)'
+        appType: webApp
+        WebAppName: '$(app_name)'
+        packageForLinux: $(System.DefaultWorkingDirectory)/drop/*.zip
+- stage: functionaltest_dev
+  displayName: FunctionalTest
+  jobs:
+  - job: FunctionalTesting
+    steps:
+    - task: CmdLine@2
+      inputs:
+        script: echo "function testing"
+- stage: deploy_staging
+  displayName: staging
+  jobs:
+  - job: staging
+    condition: and(succeeded(), eq(variables['deploy_staging'], 'yes'))
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: current
+        downloadType: single
+        artifactName: drop
+        downloadPath: $(System.DefaultWorkingDirectory)
+    - task: AzureRmWebAppDeployment@4
+      inputs:
+        ConnectionType: AzureRM
+        azureSubscription: '$(connectedservicename)'
+        appType: webApp
+        WebAppName: $(staging_app)
+        packageForLinux: $(System.DefaultWorkingDirectory)/drop/*.zip
+- stage: functionaltest_staging
+  displayName: FunctionalTestStaging
+  jobs:
+  - job: FunctionalTesting
+    steps:
+    - task: CmdLine@2
+      inputs:
+        script: echo "function testing"
+- stage: deploy_prod
+  displayName: DeployToProd
+  jobs:
+  - job: prod
+    condition: and(succeeded(), eq(variables['deploy_prod'], 'yes'))
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: current
+        downloadType: single
+        artifactName: drop
+        downloadPath: $(System.DefaultWorkingDirectory)
+    - task: AzureRmWebAppDeployment@4
+      inputs:
+        ConnectionType: AzureRM
+        azureSubscription: '$(connectedservicename)'
+        appType: webApp
+        WebAppName: $(prod_app)
+        packageForLinux: $(System.DefaultWorkingDirectory)/drop/*.zip
+- stage: functionaltest_prod
+  displayName: FunctionalTestingProd
+  jobs:
+  - job: FunctionalTesting
+    steps:
+    - task: CmdLine@2
+      inputs:
+        script: echo "function testing"

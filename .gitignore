@@ -1,0 +1,11 @@
+.vs/
+**/bin/
+**/obj/
+*.user
+appsettings.Development.json
+node_modules/
+dist/
+build/
+.env
+.env.*
+!.env.example
